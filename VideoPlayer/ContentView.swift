@@ -45,20 +45,14 @@ struct ContentView: View {
     var body: some View {
         VStack {
             if let player = player {
-                VideoPlayerView(player: player)
-                    .onAppear {
-                        player.play()
-                    }
-                    .onDisappear {
-                        player.pause()
-                    }
+                VideoPlayerViewController(player: player)
                     .frame(minWidth: 640, minHeight: 480)
                     .edgesIgnoringSafeArea(.all)
             } else {
                 Text("No video selected.")
                     .frame(minWidth: 640, minHeight: 480)
             }
-            
+
             Button("Select Video") {
                 openVideoFile()
             }
@@ -80,4 +74,3 @@ struct ContentView: View {
         }
     }
 }
-
