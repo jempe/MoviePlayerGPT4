@@ -1,6 +1,7 @@
 import SwiftUI
 import AVKit
 import AVFoundation
+import AppKit
 
 struct VideoPlayerView: NSViewRepresentable {
     let player: AVPlayer
@@ -39,23 +40,44 @@ class AVPlayerView: NSView {
 }
 
 struct ContentView: View {
-    @State private var player: AVPlayer
-
-    init() {
-        let videoURL = Bundle.main.url(forResource: "example", withExtension: "mp4")!
-        _player = State(initialValue: AVPlayer(url: videoURL))
-    }
+    @State private var player: AVPlayer?
 
     var body: some View {
-        VideoPlayerView(player: player)
-            .onAppear {
-                player.play()
+        VStack {
+            if let player = player {
+                VideoPlayerView(player: player)
+                    .onAppear {
+                        player.play()
+                    }
+                    .onDisappear {
+                        player.pause()
+                    }
+                    .frame(minWidth: 640, minHeight: 480)
+                    .edgesIgnoringSafeArea(.all)
+            } else {
+                Text("No video selected.")
+                    .frame(minWidth: 640, minHeight: 480)
             }
-            .onDisappear {
-                player.pause()
+            
+            Button("Select Video") {
+                openVideoFile()
             }
-            .frame(minWidth: 640, minHeight: 480)
-            .edgesIgnoringSafeArea(.all)
+            .padding()
+        }
+    }
+
+    private func openVideoFile() {
+        let panel = NSOpenPanel()
+        panel.allowedFileTypes = ["mp4", "mov", "m4v", "avi"] // Add more video file types as needed
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        if panel.runModal() == .OK {
+            if let url = panel.url {
+                player = AVPlayer(url: url)
+            }
+        }
     }
 }
 
