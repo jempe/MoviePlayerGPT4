@@ -1,26 +1,9 @@
-//
-//  ContentView.swift
-//  VideoPlayer
-//
-//  Created by Kastro on 14/3/23.
-//
-
 import SwiftUI
+import AVKit
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
-        }
-        .padding()
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+        VideoPlayer(player: AVPlayer(url: Bundle.main.url(forResource: "example", withExtension: "mp4")!))
+            .frame(width: 400, height: 300)
     }
 }
