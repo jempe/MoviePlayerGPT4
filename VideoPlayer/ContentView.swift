@@ -39,7 +39,12 @@ class AVPlayerView: NSView {
 }
 
 struct ContentView: View {
-    @StateObject private var player = AVPlayer(url: Bundle.main.url(forResource: "example", withExtension: "mp4")!)
+    @State private var player: AVPlayer
+
+    init() {
+        let videoURL = Bundle.main.url(forResource: "example", withExtension: "mp4")!
+        _player = State(initialValue: AVPlayer(url: videoURL))
+    }
 
     var body: some View {
         VideoPlayerView(player: player)
@@ -53,3 +58,4 @@ struct ContentView: View {
             .edgesIgnoringSafeArea(.all)
     }
 }
+
