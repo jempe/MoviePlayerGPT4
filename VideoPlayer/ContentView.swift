@@ -41,11 +41,12 @@ class AVPlayerView: NSView {
 
 struct ContentView: View {
     @State private var player: AVPlayer?
-
+    @State private var isPlaying = false
+    
     var body: some View {
         VStack {
             if let player = player {
-                VideoPlayerViewController(player: player)
+                VideoPlayerView(player: player)
                     .frame(minWidth: 640, minHeight: 480)
                     .edgesIgnoringSafeArea(.all)
             } else {
@@ -53,8 +54,18 @@ struct ContentView: View {
                     .frame(minWidth: 640, minHeight: 480)
             }
 
-            Button("Select Video") {
-                openVideoFile()
+            HStack {
+                Button("Select Video") {
+                    openVideoFile()
+                }
+                
+                Spacer()
+
+                Button(action: togglePlayPause) {
+                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 20))
+                }
+                .disabled(player == nil)
             }
             .padding()
         }
@@ -70,7 +81,18 @@ struct ContentView: View {
         if panel.runModal() == .OK {
             if let url = panel.url {
                 player = AVPlayer(url: url)
+                isPlaying = true
+                player?.play()
             }
         }
+    }
+
+    private func togglePlayPause() {
+        if isPlaying {
+            player?.pause()
+        } else {
+            player?.play()
+        }
+        isPlaying.toggle()
     }
 }
