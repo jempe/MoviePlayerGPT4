@@ -40,12 +40,13 @@ class AVPlayerView: NSView {
 }
 
 struct ContentView: View {
+    @StateObject private var viewModel = VideoPlayerViewModel()
     @State private var player: AVPlayer?
     @State private var isPlaying = false
     
     var body: some View {
         VStack {
-            if let player = player {
+            if let player = viewModel.player {
                 VideoPlayerView(player: player)
                     .frame(minWidth: 640, minHeight: 480)
                     .edgesIgnoringSafeArea(.all)
@@ -53,31 +54,37 @@ struct ContentView: View {
                 Text("No video selected.")
                     .frame(minWidth: 640, minHeight: 480)
             }
-
+            
             HStack {
                 Button("Select Video") {
                     openVideoFile()
                 }
                 
                 Spacer()
-
+                
                 Button(action: togglePlayPause) {
-                    Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
                         .font(.system(size: 20))
                 }
-                .disabled(player == nil)
+                .disabled(viewModel.player == nil)
             }
             .padding()
+            
+            VideoSlider(currentTime: $viewModel.currentTime, duration: viewModel.duration) { newTime in
+                viewModel.player?.seek(to: CMTime(seconds: newTime, preferredTimescale: 1))
+            }
+            .padding(.horizontal)
+            .disabled(viewModel.player == nil)
         }
     }
-
+    
     private func openVideoFile() {
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["mp4", "mov", "m4v", "avi"] // Add more video file types as needed
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-
+        
         if panel.runModal() == .OK {
             if let url = panel.url {
                 player = AVPlayer(url: url)
@@ -86,7 +93,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     private func togglePlayPause() {
         if isPlaying {
             player?.pause()
@@ -94,5 +101,20 @@ struct ContentView: View {
             player?.play()
         }
         isPlaying.toggle()
+    }
+}
+
+struct VideoSlider: View {
+    @Binding var currentTime: Double
+    let duration: Double
+    let onDragEnded: (Double) -> Void
+    
+    var body: some View {
+        Slider(value: $currentTime, in: 0...duration, onEditingChanged: { editing in
+            if !editing {
+                onDragEnded(currentTime)
+            }
+        })
+        .disabled(duration == 0)
     }
 }
