@@ -45,22 +45,27 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            if let player = player {
-                VideoPlayerView(player: player)
-                    .frame(minWidth: 640, minHeight: 480)
-                    .edgesIgnoringSafeArea(.all)
-            } else {
-                Text("No video selected.")
-                    .frame(minWidth: 640, minHeight: 480)
+            ZStack {
+                if let player = player {
+                    VideoPlayerView(player: player)
+                        .frame(minWidth: 640, minHeight: 480)
+                        .edgesIgnoringSafeArea(.all)
+                    WatermarkView()
+                        .frame(minWidth: 640, minHeight: 480)
+                        .edgesIgnoringSafeArea(.all)
+                } else {
+                    Text("No video selected.")
+                        .frame(minWidth: 640, minHeight: 480)
+                }
             }
-
+            
             HStack {
                 Button("Select Video") {
                     openVideoFile()
                 }
                 
                 Spacer()
-
+                
                 Button(action: togglePlayPause) {
                     Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                         .font(.system(size: 20))
@@ -70,14 +75,14 @@ struct ContentView: View {
             .padding()
         }
     }
-
+    
     private func openVideoFile() {
         let panel = NSOpenPanel()
         panel.allowedFileTypes = ["mp4", "mov", "m4v", "avi"] // Add more video file types as needed
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-
+        
         if panel.runModal() == .OK {
             if let url = panel.url {
                 player = AVPlayer(url: url)
@@ -86,7 +91,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     private func togglePlayPause() {
         if isPlaying {
             player?.pause()
